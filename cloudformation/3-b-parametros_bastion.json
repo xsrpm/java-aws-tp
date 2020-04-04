@@ -1,0 +1,6 @@
+[
+    {
+      "ParameterKey": "ClaveSSH",
+      "ParameterValue": "sshkeypair"
+    }
+]

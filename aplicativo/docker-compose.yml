@@ -1,0 +1,71 @@
+version: '3.4'
+
+services:
+
+  mysql_server:
+    #Ignorado cuando se usa en modo swarm (swarm usa imágenes de un registry)
+    build: ../basedatos/
+    image: wjma90/taller-basedatos:latest
+    environment:
+      - MYSQL_ROOT_PASSWORD=toor
+      - MYSQL_DATABASE=demobd
+      - MYSQL_PASSWORD=toor
+      - MYSQL_ROOT_HOST=%
+    volumes: 
+      - my-data:/var/lib/mysql/
+    ports:
+      - "3310:3306"
+    #Ignorado cuando se usa en swarm mode (usar restart_policy)
+    restart: on-failure
+    command: --default-authentication-plugin=mysql_native_password
+    networks:
+      - backend
+
+  apipersona:
+    build: ../api-persona/
+    image: wjma90/apipersona:latest
+    environment: 
+      - JAVA_OPTS=""
+      - host=mysql_server
+      - port=3306
+      - database=demobd
+      - username=root
+      - password=toor
+    depends_on:
+      - mysql_server
+    #Si no especifico un puerto host, se creará uno aleatorio
+    ports:
+    - "8080"
+    restart: on-failure
+    #Sobreescribiendo el entrypoint del dockerfile
+    entrypoint: dockerize -wait tcp://mysql_server:3306 -timeout 10m java -jar /workspace/app.jar
+    networks:
+      - backend
+
+  apipreferencia:
+    build: ../api-preferencia/
+    image: wjma90/apipreferencia:latest
+    environment: 
+      - JAVA_OPTS=""
+      - host=mysql_server
+      - port=3306
+      - database=demobd
+      - username=root
+      - password=toor
+      - url_apipersona=apipersona
+      - port_apipersona=8080
+    depends_on: 
+      - mysql_server
+      - apipersona
+    ports:
+       - "8080"
+    restart: on-failure
+    entrypoint: dockerize -wait tcp://mysql_server:3306 -timeout 10m java -jar /workspace/app.jar
+    networks:
+      - backend
+
+volumes:
+  my-data:
+
+networks:
+  backend: 

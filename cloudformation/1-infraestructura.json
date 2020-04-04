@@ -1,0 +1,176 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+        "Description": "VPC del curso",
+        "Metadata": {
+    
+        },
+        "Parameters": {
+            "azPublica1": {
+                "Type": "AWS::EC2::AvailabilityZone::Name"
+            },
+            "azPublica2": {
+                "Type": "AWS::EC2::AvailabilityZone::Name"
+            },
+            "azPrivada1": {
+                "Type": "AWS::EC2::AvailabilityZone::Name"
+            },
+            "azPrivada2": {
+                "Type": "AWS::EC2::AvailabilityZone::Name"
+            }
+        },
+        "Mappings": {
+    
+        },
+        "Conditions": {
+    
+        },
+        "Resources": {
+             "miVpcCurso" : {
+                "Type" : "AWS::EC2::VPC",
+                "Properties" : {
+                   "CidrBlock" : "10.0.0.0/16",
+                   "EnableDnsSupport" : "true",
+                   "EnableDnsHostnames" : "true",
+                   "InstanceTenancy" : "default"
+                }
+            },
+            "myIG" : {
+                "Type" : "AWS::EC2::InternetGateway",
+                "Properties" : {}
+            },
+            "attachGateway" : {
+                "Type" : "AWS::EC2::VPCGatewayAttachment",
+                "Properties" : {
+                   "VpcId" : { "Ref" : "miVpcCurso" },
+                   "InternetGatewayId" : { "Ref" : "myIG" }
+                }
+            },
+            "miRedPublica1" : {
+                "Type" : "AWS::EC2::Subnet",
+                "Properties" : {
+                   "VpcId" : { "Ref" : "miVpcCurso" },
+                   "CidrBlock" : "10.0.30.0/24",
+                   "AvailabilityZone" : { "Ref" : "azPublica1" },
+                   "MapPublicIpOnLaunch": true
+                }
+            },
+            "miRedPublica2" : {
+                "Type" : "AWS::EC2::Subnet",
+                "Properties" : {
+                   "VpcId" : { "Ref" : "miVpcCurso" },
+                   "CidrBlock" : "10.0.40.0/24",
+                   "AvailabilityZone" : { "Ref" : "azPublica2" },
+                   "MapPublicIpOnLaunch": true
+                }
+            },
+            "miRedPrivada1" : {
+                "Type" : "AWS::EC2::Subnet",
+                "Properties" : {
+                   "VpcId" : { "Ref" : "miVpcCurso" },
+                   "CidrBlock" : "10.0.3.0/24",
+                   "AvailabilityZone" : { "Ref" : "azPrivada1" }
+                }
+            },
+            "miRedPrivada2" : {
+                "Type" : "AWS::EC2::Subnet",
+                "Properties" : {
+                   "VpcId" : { "Ref" : "miVpcCurso" },
+                   "CidrBlock" : "10.0.4.0/24",
+                   "AvailabilityZone" : { "Ref" : "azPrivada2" }
+                }
+            },
+            "miRouteTablePublico" : {
+                "Type" : "AWS::EC2::RouteTable",
+                "Properties" : {
+                   "VpcId" : { "Ref" : "miVpcCurso" }
+                }
+            },
+            "miRouteTablePrivado" : {
+                "Type" : "AWS::EC2::RouteTable",
+                "Properties" : {
+                   "VpcId" : { "Ref" : "miVpcCurso" }
+                }
+            },
+            "miSbRTPublico1" : {
+                "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+                "Properties" : {
+                   "SubnetId" : { "Ref" : "miRedPublica1" },
+                   "RouteTableId" : { "Ref" : "miRouteTablePublico" }
+                }
+            },
+            "miSbRTPublico2" : {
+                "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+                "Properties" : {
+                   "SubnetId" : { "Ref" : "miRedPublica2" },
+                   "RouteTableId" : { "Ref" : "miRouteTablePublico" }
+                }
+            },
+            "miSbRTPrivado1" : {
+                "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+                "Properties" : {
+                   "SubnetId" : { "Ref" : "miRedPrivada1" },
+                   "RouteTableId" : { "Ref" : "miRouteTablePrivado" }
+                }
+            },
+            "miSbRTPrivado2" : {
+                "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+                "Properties" : {
+                   "SubnetId" : { "Ref" : "miRedPrivada2" },
+                   "RouteTableId" : { "Ref" : "miRouteTablePrivado" }
+                }
+            },
+            "myRoute" : {
+                "Type" : "AWS::EC2::Route",
+                "DependsOn" : "myIG",
+                "Properties" : {
+                   "RouteTableId" : { "Ref" : "miRouteTablePublico" },
+                   "DestinationCidrBlock" : "0.0.0.0/0",
+                   "GatewayId" : { "Ref" : "myIG" }
+                }
+            }
+        },
+        "Outputs": {
+            "idVPC": {
+                "Description": "Id VPC",
+                "Value": {
+                    "Ref": "miVpcCurso"
+                },
+                "Export" : { "Name" : "infraestructura-idVPC" }
+            },
+            "cidrBlockVPC": {
+                "Description": "CIDR block IP VPC",
+                "Value": {
+                    "Fn::GetAtt" : [ "miVpcCurso", "CidrBlock" ]
+                },
+                "Export" : { "Name" : "infraestructura-cidrBlockVPC" }
+            },
+            "subnetPrivada1": {
+                "Description": "SubRed Privada 1",
+                "Value": {
+                    "Ref": "miRedPrivada1"
+                },
+                "Export" : { "Name" : "infraestructura-subnetPrivada1" }
+            },
+            "subnetPrivada2": {
+                "Description": "SubRed Privada 2",
+                "Value": {
+                    "Ref" : "miRedPrivada2"
+                },
+                "Export" : { "Name" : "infraestructura-subnetPrivada2" }
+            },
+            "subnetPublica1": {
+                "Description": "SubRed Publica 1",
+                "Value": {
+                    "Ref" : "miRedPublica1"
+                },
+                "Export" : { "Name" : "infraestructura-subnetPublica1" }
+            },
+            "subnetPublica2": {
+                "Description": "SubRed Publica 2",
+                "Value": {
+                    "Ref" : "miRedPublica2"
+                },
+                "Export" : { "Name" : "infraestructura-subnetPublica2" }
+            }
+        }
+    }

@@ -1,0 +1,10 @@
+[
+    {
+      "ParameterKey": "userMasterBD",
+      "ParameterValue": "root"
+    },
+    {
+      "ParameterKey": "passwordMasterBD",
+      "ParameterValue": "12345678"
+    }
+]

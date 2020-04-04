@@ -1,0 +1,21 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "permisosSQS",
+            "Effect": "Allow",
+            "Action": [
+                "sqs:DeleteMessage",
+                "sqs:SendMessage",
+                "sqs:ChangeMessageVisibility",
+                "sqs:ChangeMessageVisibilityBatch",
+                "sqs:DeleteMessageBatch",
+                "sqs:GetQueueUrl",
+                "sqs:ReceiveMessage"
+            ],
+            "Resource": [
+                "arn:aws:sqs:us-east-2:444337168465:sns-sqs-myQueue-1GM7CEPJLMQER"
+            ]
+        }
+    ]
+}

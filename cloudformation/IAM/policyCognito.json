@@ -1,0 +1,19 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "permisosCognito",
+            "Effect": "Allow",
+            "Action": [
+                "cognito-idp:AdminInitiateAuth",
+                "cognito-idp:GlobalSignOut",
+                "cognito-idp:ConfirmForgotPassword",
+                "cognito-idp:AdminRespondToAuthChallenge",
+                "cognito-idp:InitiateAuth"
+            ],
+            "Resource": [
+                "arn:aws:cognito-idp:us-east-2:444337168465:userpool/us-east-2_fksxsYTk8"
+            ]
+        }
+    ]
+}
