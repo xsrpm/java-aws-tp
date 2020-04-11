@@ -1,0 +1,30 @@
+<mat-toolbar>Preferencias por persona</mat-toolbar>
+
+<div class="example-header">
+    <mat-form-field>
+        <input matInput (keyup)="filtrar($event.target.value)" placeholder="Buscar Preferencias">
+    </mat-form-field>
+</div>
+<mat-table [dataSource]="dataSource" matSort>
+    <ng-container matColumnDef="id">
+    <mat-header-cell *matHeaderCellDef mat-sort-header> ID PREFERENCIA </mat-header-cell>
+    <mat-cell *matCellDef="let row"> {{row.id}} </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="idPersona">
+        <mat-header-cell *matHeaderCellDef mat-sort-header> ID PERSONA </mat-header-cell>
+        <mat-cell *matCellDef="let row"> {{row.idPersona}} </mat-cell>
+        </ng-container>
+
+    <ng-container matColumnDef="lenguajeProgramacion">
+    <mat-header-cell *matHeaderCellDef mat-sort-header> LENGUAJE PROG. </mat-header-cell>
+    <mat-cell *matCellDef="let row"> {{row.lenguajeProgramacion}}</mat-cell>
+    </ng-container>
+
+<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+<mat-row *matRowDef="let row; columns: displayedColumns;">
+
+</mat-row>
+</mat-table>
+
+<mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]" ></mat-paginator>

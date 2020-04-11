@@ -1,0 +1,35 @@
+<mat-toolbar>Personas</mat-toolbar>
+
+<div class="example-header">
+    <mat-form-field>
+        <input matInput (keyup)="filtrar($event.target.value)" placeholder="Buscar Personas">
+    </mat-form-field>
+</div>
+<mat-table [dataSource]="dataSource" matSort>
+    <ng-container matColumnDef="id">
+    <mat-header-cell *matHeaderCellDef mat-sort-header> ID PERSONA </mat-header-cell>
+    <mat-cell *matCellDef="let row"> {{row.id}} </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="nombre">
+        <mat-header-cell *matHeaderCellDef mat-sort-header> NOMBRE</mat-header-cell>
+        <mat-cell *matCellDef="let row"> {{row.nombre}} </mat-cell>
+        </ng-container>
+
+    <ng-container matColumnDef="edad">
+    <mat-header-cell *matHeaderCellDef mat-sort-header> EDAD </mat-header-cell>
+    <mat-cell *matCellDef="let row"> {{row.edad}}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="sexo">
+        <mat-header-cell *matHeaderCellDef mat-sort-header> SEXO </mat-header-cell>
+        <mat-cell *matCellDef="let row"> {{row.sexo}}</mat-cell>
+        </ng-container>
+
+<mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+<mat-row *matRowDef="let row; columns: displayedColumns;">
+
+</mat-row>
+</mat-table>
+
+<mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]" ></mat-paginator>

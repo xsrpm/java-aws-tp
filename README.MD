@@ -15,11 +15,35 @@ localhost:3310
 docker-compose ps
 
 Ingresar a las apis (browser):
-Ingresar en <port> el puerto efimero asignado al levantar los contenedores:
-http://localhost:<port>/status/verificar
-http://localhost:<port>/api/persona/listar
-http://localhost:<port>/status/verificar
-http://localhost:<port>/api/preferencias/listar
+http://localhost:8081/status/verificar
+http://localhost:8081/api/personas/listar
+http://localhost:8082/status/verificar
+http://localhost:8082/api/preferencias/listar
+
+2.-
+
+Iniciando proyecto angular
+
+Requiere: 
+nodejs > 10
+angular
+angular material
+
+https://tecadmin.net/install-angular-on-ubuntu/
+https://material.angular.io/guide/getting-started
+
+IDE: Visual Studio Code
+Extensiones:
+ - Angular Language Service by Angular
+ - Angular Snippets (Version 9) by John Papa
+
+ https://code.visualstudio.com/docs/?dv=linux64_deb
+
+ Pasos:
+ cd aplicativo/angular
+ npm install
+ ng s
+ http://localhost:4200
 
 
 

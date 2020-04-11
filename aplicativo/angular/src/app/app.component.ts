@@ -1,26 +1,14 @@
-import { LoginService } from './_service/login.service';
-import { Menu } from './_model/menu';
-import { MenuService } from './_service/menu.service';
-import { Component, OnInit } from '@angular/core';
+import { Component,OnInit, ViewChild } from '@angular/core';
+import { MatTableDataSource, MatSort, MatPaginator } from '@angular/material';
+import { Persona } from './_model/persona';
+import { PreferenciaService } from './_service/preferencia.service';
+import { Preferencia } from './_model/preferencia';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit {
-  title = 'bibliaacont-frontend';
-
-  menus : Menu[];
-
-  constructor(private menuService : MenuService,
-    public loginService : LoginService){}
-
-  ngOnInit(){
-    this.menuService.menuCambio.subscribe(data =>{
-      this.menus = data;
-    })
-  }
+export class AppComponent  {
+  constructor() { }
 }
-
-
