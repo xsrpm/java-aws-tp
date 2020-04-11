@@ -5,14 +5,15 @@ services:
   mysql_server:
     #Ignorado cuando se usa en modo swarm (swarm usa imágenes de un registry)
     build: ../basedatos/
-    image: wjma90/taller-basedatos:latest
+    image: cemp2703/java-aws-tp-bd
     environment:
-      - MYSQL_ROOT_PASSWORD=toor
+      - MYSQL_ROOT_PASSWORD=12345678
       - MYSQL_DATABASE=demobd
+      - MYSQL_USER=app
       - MYSQL_PASSWORD=toor
       - MYSQL_ROOT_HOST=%
     volumes: 
-      - my-data:/var/lib/mysql/
+      - ../basedatos/scripts/:/docker-entrypoint-initdb.d/
     ports:
       - "3310:3306"
     #Ignorado cuando se usa en swarm mode (usar restart_policy)
@@ -23,14 +24,14 @@ services:
 
   apipersona:
     build: ../api-persona/
-    image: wjma90/apipersona:latest
+    image: cemp2703/java-aws-tp-api_persona
     environment: 
       - JAVA_OPTS=""
       - host=mysql_server
       - port=3306
       - database=demobd
       - username=root
-      - password=toor
+      - password=12345678
     depends_on:
       - mysql_server
     #Si no especifico un puerto host, se creará uno aleatorio
@@ -44,14 +45,14 @@ services:
 
   apipreferencia:
     build: ../api-preferencia/
-    image: wjma90/apipreferencia:latest
+    image: cemp2703/java-aws-tp-api_preferencia
     environment: 
       - JAVA_OPTS=""
       - host=mysql_server
       - port=3306
       - database=demobd
       - username=root
-      - password=toor
+      - password=12345678
       - url_apipersona=apipersona
       - port_apipersona=8080
     depends_on: 

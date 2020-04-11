@@ -5,14 +5,13 @@ services:
   mysql_server_temporal:
     #Ignorado cuando se usa en modo swarm (swarm usa imágenes de un registry)
     build: ../basedatos/
-    image: wjma90/mawsonline-mysql:latest
+    image: cemp2703/java-aws-tp-bd
     environment:
       - MYSQL_ROOT_PASSWORD=12345678
       - MYSQL_DATABASE=demobd
-      - MYSQL_PASSWORD=toor
       - MYSQL_ROOT_HOST=%
     volumes: 
-      - my-data:/var/lib/mysql/
+      - ../basedatos/scripts/:/docker-entrypoint-initdb.d/
     ports:
       - "3310:3306"
     #Ignorado cuando se usa en swarm mode (usar restart_policy)
@@ -21,7 +20,7 @@ services:
 
   apipersona:
     build: ../api-persona/
-    image: wjma90/mawsonline-api_persona:latest
+    image: cemp2703/java-aws-tp-api_persona
     environment: 
       - JAVA_OPTS=""
       - host=mysql_server_temporal
@@ -40,7 +39,7 @@ services:
 
   apipreferencia:
     build: ../api-preferencia/
-    image: wjma90/mawsonline-api_preferencia:latest
+    image: cemp2703/java-aws-tp-api_preferencia
     environment: 
       - JAVA_OPTS=""
       - host=mysql_server_temporal
