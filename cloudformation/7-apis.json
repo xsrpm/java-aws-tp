@@ -8,17 +8,6 @@
             "Description": "Archivo para conexion a EC2",
             "ConstraintDescription": "Debe existir previamente un archivo keypair"
         },
-        "userMasterBD": {
-            "Type": "String",
-            "Description": "Usuario ROOT BD",
-            "Default": "root"
-        },
-        "passwordMasterBD": {
-            "Type": "String",
-            "Description": "Password ROOT BD",
-            "NoEcho": true,
-            "Default": "12345678"
-        },
         "tipoDeInstancia" : {
             "Type" : "String",
             "Default" : "t2.micro"
@@ -26,12 +15,6 @@
         "capacidadDeseada": {
             "Type": "String",
             "Default": "2"
-        },
-        "emailSending": {
-            "Type": "String"
-        },
-        "emailDestination": {
-            "Type": "String"
         }
     },
     "Mappings": {
@@ -106,7 +89,7 @@
                                 "chmod +x /usr/bin/docker-compose \n",
                                 "service docker start \n",
                                 "usermod -a -G docker ec2-user \n",
-                                "wget https://raw.githubusercontent.com/cemp2703/java-aws-tp/master/aplicativo/compose-con-dockerize/docker-compose.yml \n",
+                                "wget https://raw.githubusercontent.com/cemp2703/java-aws-tp/master/cloudformation/docker-compose.yml \n",
                                 "docker-compose up -d apipersona"
                             ]
                         ]
