@@ -1,0 +1,186 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Apis",
+    "Metadata": {},
+    "Parameters": {
+        "KeyPairName": {
+            "Type": "AWS::EC2::KeyPair::KeyName",
+            "Description": "Archivo para conexion a EC2",
+            "ConstraintDescription": "Debe existir previamente un archivo keypair"
+        },
+        "userMasterBD": {
+            "Type": "String",
+            "Description": "Usuario ROOT BD",
+            "Default": "root"
+        },
+        "passwordMasterBD": {
+            "Type": "String",
+            "Description": "Password ROOT BD",
+            "NoEcho": true,
+            "Default": "12345678"
+        },
+        "tipoDeInstancia" : {
+            "Type" : "String",
+            "Default" : "t2.micro"
+        },
+        "capacidadDeseada": {
+            "Type": "String",
+            "Default": "2"
+        },
+        "emailSending": {
+            "Type": "String"
+        },
+        "emailDestination": {
+            "Type": "String"
+        }
+    },
+    "Mappings": {
+        "AWSRegionToAMI": {
+            "us-east-2": {
+                "AMIID": "ami-097834fcb3081f51a",
+                "AzUnique": "us-east-2a"
+            }
+        }
+    },
+    "Conditions": {},
+    "Resources": {
+        "apiPersonaTargetGroup": {
+            "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+            "Properties": {
+                "HealthCheckIntervalSeconds": 30,
+                "HealthCheckProtocol": "HTTP",
+                "HealthCheckPath": "/status/verificar",
+                "HealthCheckTimeoutSeconds": 10,
+                "HealthyThresholdCount": 3,
+                "Matcher": {
+                    "HttpCode": "200-204"
+                },
+                "Name": "tgApiPersona",
+                "Port": 8081,
+                "Protocol": "HTTP",
+                "TargetGroupAttributes": [
+                    {
+                        "Key": "deregistration_delay.timeout_seconds",
+                        "Value": "30"
+                    }
+                ],
+                "Targets": [],
+                "UnhealthyThresholdCount": 3,
+                "VpcId": {
+                    "Fn::ImportValue": "infraestructura-idVPC"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "api-persona"
+                    }
+                ]
+            }
+        },
+        "launchConfiguration": {
+            "Type": "AWS::AutoScaling::LaunchConfiguration",
+            "Properties": {
+                "KeyName": {
+                    "Ref": "KeyPairName"
+                },
+                "ImageId": {
+                    "Fn::FindInMap": [
+                        "AWSRegionToAMI",
+                        {
+                            "Ref": "AWS::Region"
+                        },
+                        "AMIID"
+                    ]
+                },
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash -xe \n",
+                                "yum update -y \n",
+                                "yum remove java-1.7.0-openjdk -y \n",
+                                "yum install -y docker \n",
+                                "chkconfig docker on \n",
+                                "curl -L https://github.com/docker/compose/releases/download/1.22.0/docker-compose-$(uname -s)-$(uname -m) -o /usr/bin/docker-compose \n",
+                                "chmod +x /usr/bin/docker-compose \n",
+                                "service docker start \n",
+                                "usermod -a -G docker ec2-user \n",
+                                "wget https://raw.githubusercontent.com/cemp2703/java-aws-tp/master/aplicativo/compose-con-dockerize/docker-compose.yml \n",
+                                "docker-compose up -d apipersona"
+                            ]
+                        ]
+                    }
+                },
+                "SecurityGroups": [
+                    { "Fn::ImportValue": "infraestructura-sgMonolito" }
+                ],
+                "InstanceType": { "Ref": "tipoDeInstancia" }
+            }
+        },
+        "autoScalingMonolito": {
+            "Type": "AWS::AutoScaling::AutoScalingGroup",
+            "Properties": {
+                "VPCZoneIdentifier": [
+                    {
+                       "Fn::ImportValue" : "infraestructura-subnetPublica1"
+                    },
+                    {
+                        "Fn::ImportValue" : "infraestructura-subnetPublica2"
+                    }
+                ],
+                "LaunchConfigurationName": {
+                    "Ref": "launchConfiguration"
+                },
+                "MinSize": "0",
+                "DesiredCapacity": { "Ref" : "capacidadDeseada" },
+                "MaxSize": "10",
+                "TargetGroupARNs": [
+                    {
+                        "Ref": "apiPersonaTargetGroup"
+                    }
+                ],
+                "MetricsCollection": [
+                    {
+                        "Granularity": "1Minute",
+                        "Metrics": [
+                            "GroupMinSize",
+                            "GroupMaxSize"
+                        ]
+                    }
+                ]
+            }
+        },
+        "apiPersonaAlbListenerRule": {
+            "Type": "AWS::ElasticLoadBalancingV2::ListenerRule",
+            "Properties": {
+                "Actions": [
+                    {
+                        "Type": "forward",
+                        "TargetGroupArn": {
+                            "Ref": "apiPersonaTargetGroup"
+                        }
+                    }
+                ],
+                "Conditions": [
+                    {
+                        "Field": "path-pattern",
+                        "Values": [
+                            "/api/personas/*"
+                        ]
+                    }
+                ],
+                "ListenerArn": { "Fn::ImportValue": "infraestructura-arnListenerHttpMyBalancer" },
+                "Priority": 10
+            }
+        }
+    },
+    "Outputs": {
+        "apiPersonaTargetGroup": {
+            "Description": "grupo de destino - api-persona",
+            "Value": {
+                "Ref": "apiPersonaTargetGroup"
+            }
+        }
+    }
+}
