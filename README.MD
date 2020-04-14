@@ -1,6 +1,6 @@
 Pasos ejecutados:
 
-1.- PROBANDO LOCAL
+1.- PROBANDO APIS LOCALMENTE
 
 cd aplicativo/compose-sin-dockerize
 ó
@@ -55,6 +55,46 @@ Enviando imagenes a dockerhub
 
 cd cloudformation
 docker-compose push
+
+Cargando stacks de cloudformation en orden:
+1-infraestructura.json
+2-security-groups.json
+3-a-bastion.json
+4-basedatos.json
+
+Carga de scripts de base de datos en RDS
+
+#Ingresando a carpeta de scripts
+cd aplicativo/basedatos/scripts
+
+#copiando scrips DDL.sql y DML.sql a ec2-bastion
+scp -i "kp_cesar_ohio.pem" DDL.sql ec2-user@ec2-18-221-43-189.us-east-2.compute.amazonaws.com:/tmp
+scp -i "kp_cesar_ohio.pem" DML.sql ec2-user@ec2-18-221-43-189.us-east-2.compute.amazonaws.com:/tmp
+
+#Ingresando a bastion
+ssh -i "kp_cesar_ohio.pem" ec2-user@ec2-3-21-207-183.us-east-2.compute.amazonaws.com
+
+#Instalando mysql
+sudo yum install mysql -y
+
+#Ingresando a base de datos en RDS
+mysql -h demobd.c9eaxdedlyrv.us-east-2.rds.amazonaws.com -u root -p
+
+#Cargando los scripts en base de datos RDS
+source /tmp/DDL.sql
+source /tmp/DML.sql
+
+
+Cargando stacks de cloudformation en orden:
+
+6-balanceador.json
+7-apis.json
+
+4 - Apuntando frontend a balanceador en la nube
+
+#En archivo:
+cd aplicativo/angular/src/environments/environments.ts
+
 
 
 

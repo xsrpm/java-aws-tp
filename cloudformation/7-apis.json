@@ -39,7 +39,7 @@
                     "HttpCode": "200-204"
                 },
                 "Name": "tgApiPersona",
-                "Port": 8081,
+                "Port": 8080,
                 "Protocol": "HTTP",
                 "TargetGroupAttributes": [
                     {
@@ -60,7 +60,7 @@
                 ]
             }
         },
-        "launchConfiguration": {
+        "ApiPersonaLaunchConfiguration": {
             "Type": "AWS::AutoScaling::LaunchConfiguration",
             "Properties": {
                 "KeyName": {
@@ -114,7 +114,7 @@
                     }
                 ],
                 "LaunchConfigurationName": {
-                    "Ref": "launchConfiguration"
+                    "Ref": "ApiPersonaLaunchConfiguration"
                 },
                 "MinSize": "0",
                 "DesiredCapacity": { "Ref" : "capacidadDeseada" },
@@ -148,6 +148,130 @@
                 "ListenerArn": { "Fn::ImportValue": "infraestructura-arnListenerHttpMyBalancer" },
                 "Priority": 10
             }
+        },
+        "apiPreferenciaTargetGroup": {
+            "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+            "Properties": {
+                "HealthCheckIntervalSeconds": 30,
+                "HealthCheckProtocol": "HTTP",
+                "HealthCheckPath": "/status/verificar",
+                "HealthCheckTimeoutSeconds": 10,
+                "HealthyThresholdCount": 3,
+                "Matcher": {
+                    "HttpCode": "200-204"
+                },
+                "Name": "tgApiPreferencia",
+                "Port": 8080,
+                "Protocol": "HTTP",
+                "TargetGroupAttributes": [
+                    {
+                        "Key": "deregistration_delay.timeout_seconds",
+                        "Value": "30"
+                    }
+                ],
+                "Targets": [],
+                "UnhealthyThresholdCount": 3,
+                "VpcId": {
+                    "Fn::ImportValue": "infraestructura-idVPC"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "api-preferencia"
+                    }
+                ]
+            }
+        },
+        "ApiPreferencialaunchConfiguration": {
+            "Type": "AWS::AutoScaling::LaunchConfiguration",
+            "Properties": {
+                "KeyName": {
+                    "Ref": "KeyPairName"
+                },
+                "ImageId": {
+                    "Fn::FindInMap": [
+                        "AWSRegionToAMI",
+                        {
+                            "Ref": "AWS::Region"
+                        },
+                        "AMIID"
+                    ]
+                },
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash -xe \n",
+                                "echo 'host=",{ "Fn::ImportValue": "basedatos-endpointRDS" },"' >> .env \n",
+                                "echo 'hostapipersona=",{ "Fn::ImportValue": "url-HttpMyBalancer" },"' >> .env \n",
+                                "echo 'portapipersona=80' >> .env \n",
+                                "yum update -y \n",
+                                "yum remove java-1.7.0-openjdk -y \n",
+                                "yum install -y docker \n",
+                                "chkconfig docker on \n",
+                                "curl -L https://github.com/docker/compose/releases/download/1.22.0/docker-compose-$(uname -s)-$(uname -m) -o /usr/bin/docker-compose \n",
+                                "chmod +x /usr/bin/docker-compose \n",
+                                "service docker start \n",
+                                "usermod -a -G docker ec2-user \n",
+                                "wget https://raw.githubusercontent.com/cemp2703/java-aws-tp/master/cloudformation/docker-compose.yml \n",
+                                "docker-compose up -d apipreferencia"
+                            ]
+                        ]
+                    }
+                },
+                "SecurityGroups": [
+                    { "Fn::ImportValue": "infraestructura-sgMonolito" }
+                ],
+                "InstanceType": { "Ref": "tipoDeInstancia" }
+            }
+        },
+        "autoScalingApiPreferencia": {
+            "Type": "AWS::AutoScaling::AutoScalingGroup",
+            "Properties": {
+                "VPCZoneIdentifier": [
+                    {
+                       "Fn::ImportValue" : "infraestructura-subnetPublica1"
+                    },
+                    {
+                        "Fn::ImportValue" : "infraestructura-subnetPublica2"
+                    }
+                ],
+                "LaunchConfigurationName": {
+                    "Ref": "ApiPreferencialaunchConfiguration"
+                },
+                "MinSize": "0",
+                "DesiredCapacity": { "Ref" : "capacidadDeseada" },
+                "MaxSize": "10",
+                "TargetGroupARNs": [
+                    {
+                        "Ref": "apiPreferenciaTargetGroup"
+                    }
+                ]
+            }
+        },
+        "apiPreferenciaAlbListenerRule": {
+            "Type": "AWS::ElasticLoadBalancingV2::ListenerRule",
+            "Properties": {
+                "Actions": [
+                    {
+                        "Type": "forward",
+                        "TargetGroupArn": {
+                            "Ref": "apiPreferenciaTargetGroup"
+                        }
+                    }
+                ],
+                "Conditions": [
+                    {
+                        "Field": "path-pattern",
+                        "Values": [
+                            "/api/preferencias/*"
+                        ]
+                    }
+                ],
+                "ListenerArn": { "Fn::ImportValue": "infraestructura-arnListenerHttpMyBalancer" },
+                "Priority": 11
+            }
         }
     },
     "Outputs": {
@@ -155,6 +279,12 @@
             "Description": "grupo de destino - api-persona",
             "Value": {
                 "Ref": "apiPersonaTargetGroup"
+            }
+        },
+        "apiPreferenciaTargetGroup": {
+            "Description": "grupo de destino - api-preferencia",
+            "Value": {
+                "Ref": "apiPreferenciaTargetGroup"
             }
         }
     }

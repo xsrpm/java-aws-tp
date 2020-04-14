@@ -29,13 +29,8 @@ services:
       - username=root
       - password=12345678
       - url_apipersona=${hostapipersona}
-      - port_apipersona=${postapipersona}
-    depends_on:
-      - apipersona
+      - port_apipersona=${portapipersona}
     network_mode: host
     restart: on-failure
     #Sobreescribiendo el entrypoint del dockerfile
     entrypoint: java -jar /workspace/app.jar
-
-volumes:
-  my-data:

@@ -85,7 +85,8 @@
                         }
                     ]
                 ]
-            }
+            },
+            "Export" : { "Name": "url-HttpMyBalancer"}
         },
         "arnListenerHttpMyBalancer": {
             "Description": "ARN del listener HTTP del balanceador",

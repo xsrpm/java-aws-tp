@@ -55,7 +55,7 @@
                 "DBInstanceClass": { "Ref": "tipoDeInstancia" },
                 "MultiAZ": false,
                 "Engine": "MySQL",
-                "EngineVersion": "5.7.29",
+                "EngineVersion": "5.7.21",
                 "MasterUsername": {
                     "Ref": "userMasterBD"
                 },

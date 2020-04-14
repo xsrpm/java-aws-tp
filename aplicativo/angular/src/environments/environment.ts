@@ -4,8 +4,10 @@
 
 export const environment = {
   production: false,
-  PERSONA_HOST :'http://localhost:8081',
-  PREFERENCIA_HOST:'http://localhost:8082'
+  //PERSONA_HOST :'http://localhost:8081',
+  //PREFERENCIA_HOST:'http://localhost:8082',
+  PERSONA_HOST :'http://mybalancercf-151451967.us-east-2.elb.amazonaws.com',
+  PREFERENCIA_HOST:'http://mybalancercf-151451967.us-east-2.elb.amazonaws.com'
 };
 
 /*
