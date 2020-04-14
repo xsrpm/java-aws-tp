@@ -46,6 +46,15 @@ Extensiones:
  http://localhost:4200
 
 
+3- Subiendo a la nube
+
+login en dockerhub
+docker login
+
+Enviando imagenes a dockerhub
+
+cd cloudformation
+docker-compose push
 
 
 

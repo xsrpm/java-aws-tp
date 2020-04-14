@@ -81,6 +81,7 @@
                             "",
                             [
                                 "#!/bin/bash -xe \n",
+                                "echo 'host=",{ "Fn::ImportValue": "basedatos-endpointRDS" },"' >> .env \n",
                                 "yum update -y \n",
                                 "yum remove java-1.7.0-openjdk -y \n",
                                 "yum install -y docker \n",
@@ -101,7 +102,7 @@
                 "InstanceType": { "Ref": "tipoDeInstancia" }
             }
         },
-        "autoScalingMonolito": {
+        "autoScalingApiPersona": {
             "Type": "AWS::AutoScaling::AutoScalingGroup",
             "Properties": {
                 "VPCZoneIdentifier": [
@@ -121,15 +122,6 @@
                 "TargetGroupARNs": [
                     {
                         "Ref": "apiPersonaTargetGroup"
-                    }
-                ],
-                "MetricsCollection": [
-                    {
-                        "Granularity": "1Minute",
-                        "Metrics": [
-                            "GroupMinSize",
-                            "GroupMaxSize"
-                        ]
                     }
                 ]
             }

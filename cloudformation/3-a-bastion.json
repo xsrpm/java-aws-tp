@@ -1,0 +1,46 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Security Groups",
+    "Metadata": {},
+    "Parameters": {
+        "TipoInstancia" : {
+            "Type" : "String",
+            "Default" : "t2.micro"
+        },
+        "IdImagen" : {
+            "Type" : "String",
+            "Default" : "ami-0f7919c33c90f5b58"
+        },
+        "ClaveSSH" : {
+            "Type" : "AWS::EC2::KeyPair::KeyName"
+        }
+    },
+    "Mappings": {},
+    "Conditions": {},
+    "Resources": {
+        "ec2Bastion" : {
+            "Type" : "AWS::EC2::Instance",
+            "Properties" : {
+                "ImageId" : { "Ref" : "IdImagen" },
+                "KeyName" : { "Ref" : "ClaveSSH" },
+                "InstanceType": { "Ref" : "TipoInstancia" },
+                "SubnetId": {"Fn::ImportValue": "infraestructura-subnetPublica1"},
+                "SecurityGroupIds": [ {
+                    "Fn::ImportValue": "infraestructura-sgBastion"
+                }]
+               
+            }
+        }
+    },
+    "Outputs": {
+        "dnsPublicEC2": {
+            "Description": "dns publico para ec2",
+            "Value": {
+                "Fn::GetAtt": [
+                    "ec2Bastion",
+                    "PublicDnsName"
+                ]
+            }
+        }
+    }
+}
