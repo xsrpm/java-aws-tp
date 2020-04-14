@@ -96,16 +96,6 @@ Cargando stacks de cloudformation en orden:
 cd aplicativo/angular/src/environments/environments.ts
 
 
-
-
-
-
-
-
-
-
-
-
 Anexos:
 1- How to pull layers one by one in Docker to avoid connection timeout?
 
@@ -120,3 +110,7 @@ sudo service docker start
 
 https://stackoverflow.com/questions/41303784/how-to-pull-layers-one-by-one-in-docker-to-avoid-connection-timeout
 
+
+
+Basado en:
+https://github.com/wjma90/taller-docker-swarm
